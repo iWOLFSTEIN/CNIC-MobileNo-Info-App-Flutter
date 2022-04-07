@@ -21,32 +21,35 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    
-    
     return MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (context) => DataProvider()),
-         ChangeNotifierProvider(create: (context) => Database()),
-        ChangeNotifierProxyProvider<Database, DatabaseProvider>(
-            create: (context) => DatabaseProvider(0,false, Database()),
-            update: (context, database, databaseProvider) =>
-                DatabaseProvider(databaseProvider!.creditCount,databaseProvider.isNewUser, database)),
-      ],
-      child:
-      //  Builder(
-      //   builder: (context) {
-      //     return
-           MaterialApp(
-            title: 'Flutter Demo',
-            theme: ThemeData(
-              textTheme: GoogleFonts.robotoTextTheme(Theme.of(context).textTheme),
-              primarySwatch: Colors.blue,
-            ),
-            home: HomeScreen(),
-          )
-      //     ;
-      //   }
-      // ),
-    );
+        providers: [
+          ChangeNotifierProvider(create: (context) => DataProvider()),
+          ChangeNotifierProvider(create: (context) => Database()),
+          ChangeNotifierProxyProvider<Database, DatabaseProvider>(
+              create: (context) => DatabaseProvider(
+                  0, false, 0, DateTime.now().toString(), Database()),
+              update: (context, database, databaseProvider) => DatabaseProvider(
+                  databaseProvider!.creditCount,
+                  databaseProvider.isNewUser,
+                  databaseProvider.dayCount,
+                  databaseProvider.time,
+                  database)),
+        ],
+        child:
+            //  Builder(
+            //   builder: (context) {
+            //     return
+            MaterialApp(
+          title: 'Flutter Demo',
+          theme: ThemeData(
+            textTheme: GoogleFonts.robotoTextTheme(Theme.of(context).textTheme),
+            primarySwatch: Colors.blue,
+          ),
+          home: HomeScreen(),
+        )
+        //     ;
+        //   }
+        // ),
+        );
   }
 }
