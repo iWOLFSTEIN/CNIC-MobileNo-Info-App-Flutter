@@ -1,4 +1,5 @@
 import 'package:contact_api_info_app/Provider/data_provider.dart';
+import 'package:contact_api_info_app/Provider/database_provider.dart';
 import 'package:contact_api_info_app/Screens/credit_claim_screen.dart';
 import 'package:contact_api_info_app/Services/api_scrapped_data.dart';
 import 'package:contact_api_info_app/Utils/alerts.dart';
@@ -26,6 +27,7 @@ class _CnicDataScreenState extends State<CnicDataScreen> {
   @override
   Widget build(BuildContext context) {
     var dataProvider = Provider.of<DataProvider>(context);
+    var databaseProvider = Provider.of<DatabaseProvider>(context);
     var maxInputLength = 13;
     var errorInfoMessage = "Enter a valid cnic!";
     var textFieldHintText = 'eg. 489821234567';
@@ -46,7 +48,7 @@ class _CnicDataScreenState extends State<CnicDataScreen> {
                 Row(
                   children: [
                     Text(
-                      "Daily Credits: 18",
+                      "Daily Credits: ${databaseProvider.creditCount}",
                       style: TextStyle(
                           color: Color(0xFF545252),
                           fontWeight: FontWeight.bold),
@@ -94,6 +96,9 @@ class _CnicDataScreenState extends State<CnicDataScreen> {
                     Expanded(child: Container()),
                     databaseButton(context, title: "Database 1",
                         voidCallBack: () async {
+                           if (databaseProvider.creditCount ==0)
+                          showInfoAlert(context, title: "Not enough credits!");
+                         else
                       if (cnicFieldController.text != "" &&
                           cnicFieldController.text.length == maxInputLength) {
                         //  && cnicFieldController.text.length == 13
@@ -126,6 +131,8 @@ class _CnicDataScreenState extends State<CnicDataScreen> {
                               widgetsList.add(widget);
                             }
                             dataProvider.cnicWidgetList = widgetsList;
+                             databaseProvider.setCredits(
+                                value: databaseProvider.creditCount - 1);
                             setState(() {
                               isSearching = false;
                             });
@@ -146,6 +153,9 @@ class _CnicDataScreenState extends State<CnicDataScreen> {
                     ),
                     databaseButton(context, title: "Database 2",
                         voidCallBack: () async {
+                           if (databaseProvider.creditCount ==0)
+                          showInfoAlert(context, title: "Not enough credits!");
+                         else
                       if (cnicFieldController.text != "" &&
                           cnicFieldController.text.length == maxInputLength) {
                         //  && cnicFieldController.text.length == 13
@@ -178,7 +188,9 @@ class _CnicDataScreenState extends State<CnicDataScreen> {
                               widgetsList.add(widget);
                             });
                             dataProvider.cnicWidgetList = widgetsList;
-                            print(dataProvider.cnicWidgetList.length);
+                             databaseProvider.setCredits(
+                                value: databaseProvider.creditCount - 1);
+                            // print(dataProvider.cnicWidgetList.length);
                             setState(() {
                               isSearching = false;
                             });

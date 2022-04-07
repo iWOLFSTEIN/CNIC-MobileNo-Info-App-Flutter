@@ -1,7 +1,10 @@
+import 'package:contact_api_info_app/Database/database.dart';
+import 'package:contact_api_info_app/Provider/database_provider.dart';
 import 'package:contact_api_info_app/Screens/cnic_data_screen.dart';
 import 'package:contact_api_info_app/Screens/mobile_data_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget {
   HomeScreen({Key? key}) : super(key: key);
@@ -35,6 +38,12 @@ class _HomeScreenState extends State<HomeScreen>
 
   @override
   Widget build(BuildContext context) {
+    var databaseProvider = Provider.of<DatabaseProvider>(context);
+    print(databaseProvider.isNewUser);
+    if (databaseProvider.isNewUser) {
+      databaseProvider.setUserState(value: false);
+      databaseProvider.setCredits(value: 20);
+    }
     TextStyle textStyle =
         GoogleFonts.roboto(textStyle: TextStyle(fontSize: 18));
     return Scaffold(
@@ -78,7 +87,7 @@ class _HomeScreenState extends State<HomeScreen>
                   controller: tabController,
                   children: [
                     CnicDataScreen(),
-                   MobileDataScreen(),
+                    MobileDataScreen(),
                     Container(
                       color: Colors.green,
                     ),

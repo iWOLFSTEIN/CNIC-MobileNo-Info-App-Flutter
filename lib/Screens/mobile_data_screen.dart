@@ -1,4 +1,6 @@
+import 'package:contact_api_info_app/Database/database.dart';
 import 'package:contact_api_info_app/Provider/data_provider.dart';
+import 'package:contact_api_info_app/Provider/database_provider.dart';
 import 'package:contact_api_info_app/Screens/credit_claim_screen.dart';
 import 'package:contact_api_info_app/Services/api_scrapped_data.dart';
 import 'package:contact_api_info_app/Utils/alerts.dart';
@@ -22,10 +24,13 @@ class MobileDataScreen extends StatefulWidget {
 class _MobileDataScreenState extends State<MobileDataScreen> {
   var mobileFieldController = TextEditingController();
   bool isSearching = false;
+  // Database database = Database();
 
   @override
   Widget build(BuildContext context) {
     var dataProvider = Provider.of<DataProvider>(context);
+    var databaseProvider = Provider.of<DatabaseProvider>(context);
+
     var maxInputLength = 10;
     var errorInfoMessage = "Enter a valid mobile number!";
     var textFieldHintText = 'eg. 3552314121';
@@ -46,7 +51,7 @@ class _MobileDataScreenState extends State<MobileDataScreen> {
                 Row(
                   children: [
                     Text(
-                      "Daily Credits: 18",
+                      "Daily Credits: ${databaseProvider.creditCount}",
                       style: TextStyle(
                           color: Color(0xFF545252),
                           fontWeight: FontWeight.bold),
@@ -94,7 +99,9 @@ class _MobileDataScreenState extends State<MobileDataScreen> {
                     Expanded(child: Container()),
                     databaseButton(context, title: "Database 1",
                         voidCallBack: () async {
-                      if (mobileFieldController.text != "" &&
+                      if (databaseProvider.creditCount == 0)
+                        showInfoAlert(context, title: "Not enough credits!");
+                      else if (mobileFieldController.text != "" &&
                           mobileFieldController.text.length == maxInputLength) {
                         //  && mobileFieldController.text.length == 13
                         setState(() {
@@ -126,6 +133,10 @@ class _MobileDataScreenState extends State<MobileDataScreen> {
                               widgetsList.add(widget);
                             }
                             dataProvider.mobileWidgetList = widgetsList;
+                            // database.setCredits(
+                            //     value: databaseProvider.creditCount - 1);
+                            databaseProvider.setCredits(
+                                value: databaseProvider.creditCount - 1);
                             setState(() {
                               isSearching = false;
                             });
@@ -146,7 +157,9 @@ class _MobileDataScreenState extends State<MobileDataScreen> {
                     ),
                     databaseButton(context, title: "Database 2",
                         voidCallBack: () async {
-                      if (mobileFieldController.text != "" &&
+                      if (databaseProvider.creditCount == 0)
+                        showInfoAlert(context, title: "Not enough credits!");
+                      else if (mobileFieldController.text != "" &&
                           mobileFieldController.text.length == maxInputLength) {
                         //  && mobileFieldController.text.length == 13
                         setState(() {
@@ -178,6 +191,9 @@ class _MobileDataScreenState extends State<MobileDataScreen> {
                               widgetsList.add(widget);
                             });
                             dataProvider.mobileWidgetList = widgetsList;
+
+                            databaseProvider.setCredits(
+                                value: databaseProvider.creditCount - 1);
                             setState(() {
                               isSearching = false;
                             });

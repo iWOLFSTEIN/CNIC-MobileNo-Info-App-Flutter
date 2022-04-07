@@ -12,6 +12,7 @@ class CreditClaimScreen extends StatefulWidget {
 class _CreditClaimScreenState extends State<CreditClaimScreen> {
   @override
   Widget build(BuildContext context) {
+    
     return Scaffold(
       body: SafeArea(
         child: Padding(
