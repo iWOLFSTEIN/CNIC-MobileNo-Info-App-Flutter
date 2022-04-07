@@ -22,7 +22,7 @@ class DataContainer extends StatelessWidget {
           Container(
             // color: Colors.orange,
             width: 100,
-            child: Text(
+            child: SelectableText(
               title,
               style: GoogleFonts.roboto(
                   textStyle: TextStyle(color: color, fontSize: 16)),
@@ -32,7 +32,7 @@ class DataContainer extends StatelessWidget {
           Container(
             // color: Colors.blue,
             width: 125,
-            child: Text(
+            child: SelectableText(
               value,
               style: GoogleFonts.roboto(
                   textStyle: TextStyle(
