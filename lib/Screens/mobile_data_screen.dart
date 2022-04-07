@@ -39,201 +39,243 @@ class _MobileDataScreenState extends State<MobileDataScreen> {
       inAsyncCall: isSearching,
       child: Scaffold(
         backgroundColor: Color(0xFFF7F8FE),
-        body: SingleChildScrollView(
-          child: Padding(
-            padding: EdgeInsets.symmetric(
-                horizontal: width(context) * 4 / 100, vertical: 0),
-            child: Column(
-              children: [
-                SizedBox(
-                  height: 10,
-                ),
-                Row(
-                  children: [
-                    Text(
-                      "Daily Credits: ${databaseProvider.creditCount}",
-                      style: TextStyle(
-                          color: Color(0xFF545252),
-                          fontWeight: FontWeight.bold),
-                    ),
-                    Expanded(child: Container()),
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.push(context,
-                            MaterialPageRoute(builder: (context) {
-                          return CreditClaimScreen();
-                        }));
-                      },
+        body: Stack(
+          children: [
+            (listEquals(dataProvider.mobileWidgetList, []))
+                ? Container(
+                    width: double.infinity,
+                    child: Padding(
+                      padding:
+                          EdgeInsets.only(top: height(context) * 21.5 / 100),
                       child: Text(
-                        "Earn Credits?",
-                        style: TextStyle(
-                            color: Color(0xFFFF2523),
-                            fontWeight: FontWeight.bold),
+                        "Note: Try both databases for better results",
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.roboto(
+                            textStyle: TextStyle(
+                                color: Color(0xFF555253), fontSize: 17)),
                       ),
                     ),
-                  ],
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-                Container(
-                  width: double.infinity,
-                  height: 45,
-                  decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.all(Radius.circular(5))),
-                  child: TextField(
-                    controller: mobileFieldController,
-                    decoration: InputDecoration(
-                        border: InputBorder.none,
-                        hintText: textFieldHintText,
-                        contentPadding:
-                            const EdgeInsets.symmetric(horizontal: 10)),
-                  ),
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-                Row(
-                  children: [
-                    Expanded(child: Container()),
-                    databaseButton(context, title: "Database 1",
-                        voidCallBack: () async {
-                      if (databaseProvider.creditCount == 0)
-                        showInfoAlert(context, title: "Not enough credits!");
-                      else if (mobileFieldController.text != "" &&
-                          mobileFieldController.text.length == maxInputLength) {
-                        //  && mobileFieldController.text.length == 13
-                        setState(() {
-                          isSearching = true;
-                        });
-                        List<Widget> dummyWidgetList = [];
-                        dataProvider.mobileWidgetList = dummyWidgetList;
-                        try {
-                          ApiScrappedData apiData = ApiScrappedData();
-                          var dataList = await apiData.getLiveTrackerApiData(
-                              number: mobileFieldController.text);
-                          // print(dataList);
-                          if (dataList != null) if (listEquals(dataList, [])) {
-                            setState(() {
-                              isSearching = false;
-                            });
-                            showInfoAlert(context,
-                                title: "Data not available!");
-                          } else {
-                            List<Widget> widgetsList = [];
-
-                            for (var i in dataList) {
-                              var widget = DataContainer(
-                                number: i[1] ?? "N/A",
-                                name: i[3] ?? "N/A",
-                                cnic: i[5] ?? "N/A",
-                                address: i[7] ?? "N/A",
-                              );
-                              widgetsList.add(widget);
-                            }
-                            dataProvider.mobileWidgetList = widgetsList;
-                            // database.setCredits(
-                            //     value: databaseProvider.creditCount - 1);
-                            databaseProvider.setCredits(
-                                value: databaseProvider.creditCount - 1);
-                            setState(() {
-                              isSearching = false;
-                            });
-                          }
-                        } catch (e) {
-                          setState(() {
-                            isSearching = false;
-                          });
-                          print(e.toString());
-                          showInfoAlert(context, title: "Data not available!");
-                        }
-                      } else {
-                        showInfoAlert(context, title: errorInfoMessage);
-                      }
-                    }),
-                    SizedBox(
-                      width: width(context) * 4 / 100,
+                  )
+                : Container(
+                    // color: Colors.orange,
+                    child: SingleChildScrollView(
+                      child: Padding(
+                        padding:
+                            EdgeInsets.only(top: height(context) * 21.5 / 100),
+                        child: Column(
+                          children: dataProvider.mobileWidgetList,
+                        ),
+                      ),
                     ),
-                    databaseButton(context, title: "Database 2",
-                        voidCallBack: () async {
-                      if (databaseProvider.creditCount == 0)
-                        showInfoAlert(context, title: "Not enough credits!");
-                      else if (mobileFieldController.text != "" &&
-                          mobileFieldController.text.length == maxInputLength) {
-                        //  && mobileFieldController.text.length == 13
-                        setState(() {
-                          isSearching = true;
-                        });
-                        List<Widget> dummyWidgetList = [];
-                        dataProvider.mobileWidgetList = dummyWidgetList;
-                        try {
-                          ApiData apiData = ApiData();
-                          var dataList = await apiData.getCodeApkApiData(
-                              number: mobileFieldController.text);
-                          print(dataList);
-                          if (dataList != null) if (mapEquals(dataList, {})) {
-                            setState(() {
-                              isSearching = false;
-                            });
-                            showInfoAlert(context,
-                                title: "Data not available!");
-                          } else {
-                            List<Widget> widgetsList = [];
-
-                            dataList.forEach((i, value) {
-                              var widget = DataContainer(
-                                number: value["MobileNo "] ?? "N/A",
-                                name: value["Name "] ?? "N/A",
-                                cnic: value["CNIC "] ?? "N/A",
-                                address: value["Address "] ?? "N/A",
-                              );
-                              widgetsList.add(widget);
-                            });
-                            dataProvider.mobileWidgetList = widgetsList;
-
-                            databaseProvider.setCredits(
-                                value: databaseProvider.creditCount - 1);
-                            setState(() {
-                              isSearching = false;
-                            });
-                          }
-                        } catch (e) {
-                          setState(() {
-                            isSearching = false;
-                          });
-                          print("Throwing Error");
-                          print(e.toString());
-                          showInfoAlert(context, title: "Data not available!");
-                        }
-                      } else {
-                        showInfoAlert(context, title: errorInfoMessage);
-                      }
-                    }),
-                    Expanded(child: Container()),
-                  ],
-                ),
-                SizedBox(
-                  height: 25,
-                ),
-                (listEquals(dataProvider.mobileWidgetList, []))
-                    ? Container(
-                        width: double.infinity,
-                        child: Center(
+                  ),
+            Container(
+               height: height(context) * 20.5 / 100,
+                color: Color(0xFFF7F8FE),
+              child: Padding(
+                padding: EdgeInsets.symmetric(
+                    horizontal: width(context) * 4 / 100, vertical: 0),
+                child: Column(
+                  children: [
+                    SizedBox(
+                      height: 10,
+                    ),
+                    Row(
+                      children: [
+                        Text(
+                          "Daily Credits: ${databaseProvider.creditCount}",
+                          style: TextStyle(
+                              color: Color(0xFF545252),
+                              fontWeight: FontWeight.bold),
+                        ),
+                        Expanded(child: Container()),
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.push(context,
+                                MaterialPageRoute(builder: (context) {
+                              return CreditClaimScreen();
+                            }));
+                          },
                           child: Text(
-                            "Note: Try both databases for better results",
-                            style: GoogleFonts.roboto(
-                                textStyle: TextStyle(
-                                    color: Color(0xFF555253), fontSize: 17)),
+                            "Earn Credits?",
+                            style: TextStyle(
+                                color: Color(0xFFFF2523),
+                                fontWeight: FontWeight.bold),
                           ),
                         ),
-                      )
-                    : Column(
-                        children: dataProvider.mobileWidgetList,
-                      )
-              ],
+                      ],
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    Container(
+                      width: double.infinity,
+                      height: 45,
+                      decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.all(Radius.circular(5))),
+                      child: TextField(
+                        controller: mobileFieldController,
+                        decoration: InputDecoration(
+                            border: InputBorder.none,
+                            hintText: textFieldHintText,
+                            contentPadding:
+                                const EdgeInsets.symmetric(horizontal: 10)),
+                      ),
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    Row(
+                      children: [
+                        Expanded(child: Container()),
+                        databaseButton(context, title: "Database 1",
+                            voidCallBack: () async {
+                          if (databaseProvider.creditCount == 0)
+                            showInfoAlert(context,
+                                title: "Not enough credits!");
+                          else if (mobileFieldController.text != "" &&
+                              mobileFieldController.text.length ==
+                                  maxInputLength) {
+                            //  && mobileFieldController.text.length == 13
+                            setState(() {
+                              isSearching = true;
+                            });
+                            List<Widget> dummyWidgetList = [];
+                            dataProvider.mobileWidgetList = dummyWidgetList;
+                            try {
+                              ApiScrappedData apiData = ApiScrappedData();
+                              var dataList =
+                                  await apiData.getLiveTrackerApiData(
+                                      number: mobileFieldController.text);
+                              // print(dataList);
+                              if (dataList !=
+                                  null) if (listEquals(dataList, [])) {
+                                setState(() {
+                                  isSearching = false;
+                                });
+                                showInfoAlert(context,
+                                    title: "Data not available!");
+                              } else {
+                                List<Widget> widgetsList = [];
+
+                                for (var i in dataList) {
+                                  var widget = DataContainer(
+                                    number: i[1] ?? "N/A",
+                                    name: i[3] ?? "N/A",
+                                    cnic: i[5] ?? "N/A",
+                                    address: i[7] ?? "N/A",
+                                  );
+                                  widgetsList.add(widget);
+                                }
+                                dataProvider.mobileWidgetList = widgetsList;
+                                // database.setCredits(
+                                //     value: databaseProvider.creditCount - 1);
+                                databaseProvider.setCredits(
+                                    value: databaseProvider.creditCount - 1);
+                                setState(() {
+                                  isSearching = false;
+                                });
+                              }
+                            } catch (e) {
+                              setState(() {
+                                isSearching = false;
+                              });
+                              print(e.toString());
+                              showInfoAlert(context,
+                                  title: "Data not available!");
+                            }
+                          } else {
+                            showInfoAlert(context, title: errorInfoMessage);
+                          }
+                        }),
+                        SizedBox(
+                          width: width(context) * 4 / 100,
+                        ),
+                        databaseButton(context, title: "Database 2",
+                            voidCallBack: () async {
+                          if (databaseProvider.creditCount == 0)
+                            showInfoAlert(context,
+                                title: "Not enough credits!");
+                          else if (mobileFieldController.text != "" &&
+                              mobileFieldController.text.length ==
+                                  maxInputLength) {
+                            //  && mobileFieldController.text.length == 13
+                            setState(() {
+                              isSearching = true;
+                            });
+                            List<Widget> dummyWidgetList = [];
+                            dataProvider.mobileWidgetList = dummyWidgetList;
+                            try {
+                              ApiData apiData = ApiData();
+                              var dataList = await apiData.getCodeApkApiData(
+                                  number: mobileFieldController.text);
+                              print(dataList);
+                              if (dataList !=
+                                  null) if (mapEquals(dataList, {})) {
+                                setState(() {
+                                  isSearching = false;
+                                });
+                                showInfoAlert(context,
+                                    title: "Data not available!");
+                              } else {
+                                List<Widget> widgetsList = [];
+
+                                dataList.forEach((i, value) {
+                                  var widget = DataContainer(
+                                    number: value["MobileNo "] ?? "N/A",
+                                    name: value["Name "] ?? "N/A",
+                                    cnic: value["CNIC "] ?? "N/A",
+                                    address: value["Address "] ?? "N/A",
+                                  );
+                                  widgetsList.add(widget);
+                                });
+                                dataProvider.mobileWidgetList = widgetsList;
+
+                                databaseProvider.setCredits(
+                                    value: databaseProvider.creditCount - 1);
+                                setState(() {
+                                  isSearching = false;
+                                });
+                              }
+                            } catch (e) {
+                              setState(() {
+                                isSearching = false;
+                              });
+                              print("Throwing Error");
+                              print(e.toString());
+                              showInfoAlert(context,
+                                  title: "Data not available!");
+                            }
+                          } else {
+                            showInfoAlert(context, title: errorInfoMessage);
+                          }
+                        }),
+                        Expanded(child: Container()),
+                      ],
+                    ),
+                    // SizedBox(
+                    //   height: 25,
+                    // ),
+                    // (listEquals(dataProvider.mobileWidgetList, []))
+                    //     ? Container(
+                    //         width: double.infinity,
+                    //         child: Center(
+                    //           child: Text(
+                    //             "Note: Try both databases for better results",
+                    //             style: GoogleFonts.roboto(
+                    //                 textStyle: TextStyle(
+                    //                     color: Color(0xFF555253), fontSize: 17)),
+                    //           ),
+                    //         ),
+                    //       )
+                    //     : Column(
+                    //         children: dataProvider.mobileWidgetList,
+                    //       )
+                  ],
+                ),
+              ),
             ),
-          ),
+          ],
         ),
       ),
     );
