@@ -3,6 +3,8 @@ import 'package:contact_api_info_app/Provider/data_provider.dart';
 import 'package:contact_api_info_app/Provider/database_provider.dart';
 import 'package:contact_api_info_app/Screens/credit_claim_screen.dart';
 import 'package:contact_api_info_app/Screens/home_screen.dart';
+import 'package:contact_api_info_app/Screens/settings_screen.dart';
+import 'package:contact_api_info_app/Screens/splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
@@ -46,7 +48,7 @@ class MyApp extends StatelessWidget {
             textTheme: GoogleFonts.robotoTextTheme(Theme.of(context).textTheme),
             primarySwatch: Colors.blue,
           ),
-          home: HomeScreen(),
+          home: SplashScreen(),
         )
         //     ;
         //   }

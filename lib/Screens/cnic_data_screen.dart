@@ -66,8 +66,8 @@ class _CnicDataScreenState extends State<CnicDataScreen> {
                     ),
                   ),
             Container(
-               height: height(context) * 20.5 / 100,
-                color: Color(0xFFF7F8FE),
+              height: height(context) * 20.5 / 100,
+              color: Color(0xFFF7F8FE),
               child: Padding(
                 padding: EdgeInsets.symmetric(
                     horizontal: width(context) * 4 / 100, vertical: 0),
@@ -110,6 +110,8 @@ class _CnicDataScreenState extends State<CnicDataScreen> {
                       height: 45,
                       decoration: BoxDecoration(
                           color: Colors.white,
+                          border: Border.all(
+                              color: Colors.black.withOpacity(0.075)),
                           borderRadius: BorderRadius.all(Radius.circular(5))),
                       child: TextField(
                         controller: cnicFieldController,

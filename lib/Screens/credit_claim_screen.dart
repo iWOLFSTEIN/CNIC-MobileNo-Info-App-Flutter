@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:contact_api_info_app/Constants/ads_ids.dart';
 import 'package:contact_api_info_app/Provider/database_provider.dart';
 import 'package:contact_api_info_app/Utils/alerts.dart';
 import 'package:contact_api_info_app/Utils/coins_calculator.dart';
@@ -8,7 +9,6 @@ import 'package:contact_api_info_app/Utils/dimensions.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 class CreditClaimScreen extends StatefulWidget {
@@ -20,18 +20,16 @@ class CreditClaimScreen extends StatefulWidget {
 
 class _CreditClaimScreenState extends State<CreditClaimScreen> {
   RewardedAd? _rewardedAd;
-  // int dayCount = 0;
-  // String futureTime = "";
 
   loadRewardedAd() async {
     await RewardedAd.load(
-        adUnitId:RewardedAd.testAdUnitId,
+        adUnitId: rewardedAdId,
+        //RewardedAd.testAdUnitId,
         // 'ca-app-pub-3940256099942544/5224354917',
         request: AdRequest(),
         rewardedAdLoadCallback: RewardedAdLoadCallback(
           onAdLoaded: (RewardedAd ad) {
             print('$ad loaded.');
-            // Keep a reference to the ad so you can show it later.
             this._rewardedAd = ad;
           },
           onAdFailedToLoad: (LoadAdError error) {

@@ -2,6 +2,7 @@ import 'package:contact_api_info_app/Database/database.dart';
 import 'package:contact_api_info_app/Provider/database_provider.dart';
 import 'package:contact_api_info_app/Screens/cnic_data_screen.dart';
 import 'package:contact_api_info_app/Screens/mobile_data_screen.dart';
+import 'package:contact_api_info_app/Screens/settings_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -51,8 +52,9 @@ class _HomeScreenState extends State<HomeScreen>
         body: SafeArea(
           child: Column(
             children: [
-              Container(
+              Material(
                 color: Color(0xFFF7F8FF),
+                elevation: 16,
                 child: TabBar(
                     controller: tabController,
                     labelColor: Colors.black,
@@ -88,9 +90,7 @@ class _HomeScreenState extends State<HomeScreen>
                   children: [
                     CnicDataScreen(),
                     MobileDataScreen(),
-                    Container(
-                      color: Colors.green,
-                    ),
+                   SettingsScreen(),
                   ],
                 ),
               ),
