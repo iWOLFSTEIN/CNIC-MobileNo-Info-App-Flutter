@@ -1,6 +1,7 @@
 import 'package:contact_api_info_app/Database/database.dart';
 import 'package:contact_api_info_app/Provider/data_provider.dart';
 import 'package:contact_api_info_app/Provider/database_provider.dart';
+import 'package:contact_api_info_app/Screens/credit_claim_screen.dart';
 import 'package:contact_api_info_app/Screens/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';

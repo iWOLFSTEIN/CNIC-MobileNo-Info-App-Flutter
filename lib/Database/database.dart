@@ -46,7 +46,7 @@ class Database with ChangeNotifier {
   getTime() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
-    String currentTime = prefs.getString("currentDayCount") ?? DateTime.now().toString();
+    String currentTime = prefs.getString("currentTime") ?? DateTime.now().toString();
 
     return currentTime;
   }

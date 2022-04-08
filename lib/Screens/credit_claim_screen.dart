@@ -1,9 +1,15 @@
+import 'dart:async';
+
+import 'package:contact_api_info_app/Provider/database_provider.dart';
 import 'package:contact_api_info_app/Utils/alerts.dart';
 import 'package:contact_api_info_app/Utils/coins_calculator.dart';
+import 'package:contact_api_info_app/Utils/countdown_time.dart';
 import 'package:contact_api_info_app/Utils/dimensions.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 class CreditClaimScreen extends StatefulWidget {
   CreditClaimScreen({Key? key}) : super(key: key);
@@ -14,10 +20,13 @@ class CreditClaimScreen extends StatefulWidget {
 
 class _CreditClaimScreenState extends State<CreditClaimScreen> {
   RewardedAd? _rewardedAd;
+  // int dayCount = 0;
+  // String futureTime = "";
 
   loadRewardedAd() async {
     await RewardedAd.load(
-        adUnitId: 'ca-app-pub-3940256099942544/5224354917',
+        adUnitId:RewardedAd.testAdUnitId,
+        // 'ca-app-pub-3940256099942544/5224354917',
         request: AdRequest(),
         rewardedAdLoadCallback: RewardedAdLoadCallback(
           onAdLoaded: (RewardedAd ad) {
@@ -36,11 +45,21 @@ class _CreditClaimScreenState extends State<CreditClaimScreen> {
     // TODO: implement initState
     super.initState();
     loadRewardedAd();
+
   }
 
-  bool isClaimed = true;
+  
+
   @override
   Widget build(BuildContext context) {
+    var databaseProvider = Provider.of<DatabaseProvider>(context);
+ 
+    bool isClaimed =
+        DateTime.parse(databaseProvider.time).isAfter(DateTime.now());
+    int currentDayCount = databaseProvider.dayCount;
+    if (!isClaimed && currentDayCount == 7) {
+      databaseProvider.setDayCount(value: 0);
+    }
     return Scaffold(
       body: SafeArea(
         child: Padding(
@@ -51,7 +70,7 @@ class _CreditClaimScreenState extends State<CreditClaimScreen> {
                 height: 20,
               ),
               Text(
-                "Your Credit: 2",
+                "Your Credit: ${databaseProvider.creditCount}",
                 style: GoogleFonts.roboto(
                     textStyle: TextStyle(
                         color: Color(0xFF555353),
@@ -71,7 +90,7 @@ class _CreditClaimScreenState extends State<CreditClaimScreen> {
                     for (int i = 1; i <= 7; i++)
                       Padding(
                         padding: const EdgeInsets.all(8.0),
-                        child: (isClaimed)
+                        child: (i <= currentDayCount)
                             ? Stack(
                                 fit: StackFit.expand,
                                 children: [
@@ -114,7 +133,7 @@ class _CreditClaimScreenState extends State<CreditClaimScreen> {
                                       style: GoogleFonts.roboto(
                                           textStyle: TextStyle(
                                               color: Colors.white,
-                                              fontSize: 10)),
+                                              fontSize: 9)),
                                     )),
                                   ),
                                 ],
@@ -161,21 +180,49 @@ class _CreditClaimScreenState extends State<CreditClaimScreen> {
                     borderRadius: BorderRadius.all(Radius.circular(5))),
                 child: TextButton(
                   onPressed: () {
-                    if (_rewardedAd != null) {
+                    
+                   if (DateTime.parse(databaseProvider.time)
+                        .isAfter(DateTime.now())) {
+                      showInfoAlert(context,
+                          title: "Please wait for your reward!");
+                      // databaseProvider.setDayCount(value: 0);
+                      // databaseProvider.setTime(
+                      //     value: DateTime.now().toString());
+                      // databaseProvider.setCredits(value: 0);
+                    } else {
+                      if (_rewardedAd != null) {
                       _rewardedAd!.show(
                           onUserEarnedReward:
-                              (AdWithoutView ad, RewardItem rewardItem) {});
+                              (AdWithoutView ad, RewardItem rewardItem) {
+                                 databaseProvider.setCredits(
+                          value: databaseProvider.creditCount +
+                              CoinCalculator.getCoins(
+                                  id: databaseProvider.dayCount + 1));
+                      databaseProvider.setDayCount(
+                          value: databaseProvider.dayCount + 1);
+                      databaseProvider.setTime(
+                          value: DateTime.now()
+                              .add(Duration(hours:24))
+                              .toString());
+                              });
                     } else {
                       showInfoAlert(context,
                           title: "Ad is not available currently!");
                     }
+                     
+                    }
                   },
-                  child: Text(
-                    "Claim Reward",
-                    style: GoogleFonts.roboto(
-                        textStyle:
-                            TextStyle(color: Colors.white, fontSize: 15)),
-                  ),
+                  child: (isClaimed)
+                      ? CountdownTimer(
+                          startDuration: DateTime.parse(databaseProvider.time)
+                              .difference(DateTime.now()),
+                        )
+                      : Text(
+                          "Claim Reward",
+                          style: GoogleFonts.roboto(
+                              textStyle:
+                                  TextStyle(color: Colors.white, fontSize: 15)),
+                        ),
                 ),
               )
             ],
