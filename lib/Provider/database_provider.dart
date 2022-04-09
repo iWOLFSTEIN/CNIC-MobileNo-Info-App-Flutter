@@ -2,7 +2,7 @@ import 'package:contact_api_info_app/Database/database.dart';
 import 'package:flutter/cupertino.dart';
 
 class DatabaseProvider with ChangeNotifier {
-  DatabaseProvider(this._creditCount, this._isNewUser,this._dayCount, this._time, this.database) {
+  DatabaseProvider(this._creditCount, this._isNewUser,this._dayCount, this._time, this._interstitialAdsCount, this.database) {
     fetchAndSetData();
   }
 
@@ -19,6 +19,9 @@ class DatabaseProvider with ChangeNotifier {
 
   String _time = DateTime.now().toString();
   String get time => _time;
+
+  int? _interstitialAdsCount = 0;
+  int get interstitialAdsCount => _interstitialAdsCount!;
 
   Future<void> fetchAndSetData() async {
     final currentCreditCount = await database!.getCredits();
@@ -54,6 +57,12 @@ class DatabaseProvider with ChangeNotifier {
   setTime({value}) async {
     await database!.setTime(value: value);
     _time = value;
+    notifyListeners();
+  }
+
+  setInterstitialAdsCount({value}) async {
+    await database!.setInterstitialAdsCount(value: value);
+    _interstitialAdsCount = value;
     notifyListeners();
   }
 }

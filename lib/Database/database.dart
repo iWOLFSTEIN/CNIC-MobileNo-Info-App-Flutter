@@ -27,7 +27,6 @@ class Database with ChangeNotifier {
   setCredits({int? value}) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setInt('currentCredits', value!);
-    // notifyListeners();
   }
 
   getDayCount() async {
@@ -54,5 +53,32 @@ class Database with ChangeNotifier {
   setTime({String? value}) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setString('currentTime', value!);
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  getInterstitialAdsCount() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    int currentCount = prefs.getInt("currentCount") ?? 0;
+
+    return currentCount;
+  }
+
+  setInterstitialAdsCount({int? value}) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setInt('currentCount', value!);
   }
 }

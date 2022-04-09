@@ -1,5 +1,4 @@
-import 'dart:async';
-
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:contact_api_info_app/Constants/ads_ids.dart';
 import 'package:contact_api_info_app/Provider/database_provider.dart';
 import 'package:contact_api_info_app/Utils/alerts.dart';
@@ -20,43 +19,123 @@ class CreditClaimScreen extends StatefulWidget {
 
 class _CreditClaimScreenState extends State<CreditClaimScreen> {
   RewardedAd? _rewardedAd;
+  String? rewardedAdIdFromFirebase;
+  FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
 
   loadRewardedAd() async {
     await RewardedAd.load(
-        adUnitId: rewardedAdId,
-        //RewardedAd.testAdUnitId,
-        // 'ca-app-pub-3940256099942544/5224354917',
+        adUnitId:
+            (rewardedAdIdFromFirebase == null || rewardedAdIdFromFirebase == "")
+                ? rewardedAdId
+                : rewardedAdIdFromFirebase!,
         request: AdRequest(),
         rewardedAdLoadCallback: RewardedAdLoadCallback(
           onAdLoaded: (RewardedAd ad) {
             print('$ad loaded.');
-            this._rewardedAd = ad;
+            setState(() {
+              this._rewardedAd = ad;
+            });
           },
           onAdFailedToLoad: (LoadAdError error) {
             print('RewardedAd failed to load: $error');
+            setState(() {
+              isAdFailedToLoad = true;
+            });
           },
         ));
   }
 
+  bool isAdFailedToLoad = false;
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    loadRewardedAd();
-
+    getRewardedAdIdFromFirebase();
   }
 
-  
+  getRewardedAdIdFromFirebase() async {
+    try {
+      await firebaseFirestore
+          .collection("AdsIds")
+          .doc("rewardedAdId")
+          .get()
+          .then((value) {
+        setState(() {
+          rewardedAdIdFromFirebase = value.data()!["id"];
+        });
+        loadRewardedAd();
+      });
+    } catch (e) {
+      print(e.toString());
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     var databaseProvider = Provider.of<DatabaseProvider>(context);
- 
+
     bool isClaimed =
         DateTime.parse(databaseProvider.time).isAfter(DateTime.now());
     int currentDayCount = databaseProvider.dayCount;
     if (!isClaimed && currentDayCount == 7) {
       databaseProvider.setDayCount(value: 0);
+    }
+    if (!isClaimed && _rewardedAd == null) {
+      return Container(
+        color: Colors.white,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            (isAdFailedToLoad)
+                ? Material(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(
+                          horizontal: width(context) * 6 / 100),
+                      child: Container(
+                        width: width(context),
+                        child: Text(
+                          "Ads are not available currently. Come back later!",
+                          textAlign: TextAlign.center,
+                          style: GoogleFonts.roboto(),
+                        ),
+                      ),
+                    ),
+                  )
+                : CircularProgressIndicator(),
+            SizedBox(
+              height: 30,
+            ),
+            (isAdFailedToLoad)
+                ? Padding(
+                    padding: EdgeInsets.symmetric(
+                        horizontal: width(context) * 6 / 100),
+                    child: Container(
+                      width: width(context),
+                      height: 40,
+                      decoration: BoxDecoration(
+                          color: Color(0xFFFF2523),
+                          borderRadius: BorderRadius.all(Radius.circular(5))),
+                      child: TextButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        child: Text(
+                          "Go Back",
+                          style: GoogleFonts.roboto(
+                              textStyle: TextStyle(color: Colors.white)),
+                        ),
+                      ),
+                    ),
+                  )
+                : Material(
+                    child: Text(
+                      "Loading Ads...",
+                      style: GoogleFonts.roboto(),
+                    ),
+                  )
+          ],
+        ),
+      );
     }
     return Scaffold(
       body: SafeArea(
@@ -177,37 +256,34 @@ class _CreditClaimScreenState extends State<CreditClaimScreen> {
                     color: Color(0xFFFF2523),
                     borderRadius: BorderRadius.all(Radius.circular(5))),
                 child: TextButton(
-                  onPressed: () {
-                    
-                   if (DateTime.parse(databaseProvider.time)
+                  onPressed: () async {
+                    if (DateTime.parse(databaseProvider.time)
                         .isAfter(DateTime.now())) {
                       showInfoAlert(context,
                           title: "Please wait for your reward!");
                       // databaseProvider.setDayCount(value: 0);
                       // databaseProvider.setTime(
                       //     value: DateTime.now().toString());
-                      // databaseProvider.setCredits(value: 0);
                     } else {
                       if (_rewardedAd != null) {
-                      _rewardedAd!.show(
-                          onUserEarnedReward:
-                              (AdWithoutView ad, RewardItem rewardItem) {
-                                 databaseProvider.setCredits(
-                          value: databaseProvider.creditCount +
-                              CoinCalculator.getCoins(
-                                  id: databaseProvider.dayCount + 1));
-                      databaseProvider.setDayCount(
-                          value: databaseProvider.dayCount + 1);
-                      databaseProvider.setTime(
-                          value: DateTime.now()
-                              .add(Duration(hours:24))
-                              .toString());
-                              });
-                    } else {
-                      showInfoAlert(context,
-                          title: "Ad is not available currently!");
-                    }
-                     
+                        _rewardedAd!.show(onUserEarnedReward:
+                            (AdWithoutView ad, RewardItem rewardItem) {
+                          databaseProvider.setCredits(
+                              value: databaseProvider.creditCount +
+                                  CoinCalculator.getCoins(
+                                      id: databaseProvider.dayCount + 1));
+                          databaseProvider.setDayCount(
+                              value: databaseProvider.dayCount + 1);
+                          databaseProvider.setTime(
+                              value: DateTime.now()
+                                  .add(Duration(hours: 24))
+                                  .toString());
+                        });
+                      } else {
+                        showInfoAlert(context,
+                            title:
+                                "Ad is not available currently. Come back later!");
+                      }
                     }
                   },
                   child: (isClaimed)

@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:contact_api_info_app/Constants/ads_ids.dart';
 import 'package:contact_api_info_app/Provider/data_provider.dart';
 import 'package:contact_api_info_app/Provider/database_provider.dart';
 import 'package:contact_api_info_app/Screens/credit_claim_screen.dart';
@@ -8,6 +10,7 @@ import 'package:contact_api_info_app/Widgets/data_container.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:provider/provider.dart';
 
@@ -23,11 +26,56 @@ class CnicDataScreen extends StatefulWidget {
 class _CnicDataScreenState extends State<CnicDataScreen> {
   var cnicFieldController = TextEditingController();
   bool isSearching = false;
+  FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
+  InterstitialAd? _interstitialAd;
+  String? interstitialAdIdFromFirebase;
+
+  loadInterstitialAd() async {
+    InterstitialAd.load(
+        adUnitId: (interstitialAdIdFromFirebase == null ||
+                interstitialAdIdFromFirebase == "")
+            ? interstitialAdId
+            : interstitialAdIdFromFirebase!,
+        request: AdRequest(),
+        adLoadCallback: InterstitialAdLoadCallback(
+          onAdLoaded: (InterstitialAd ad) {
+            this._interstitialAd = ad;
+          },
+          onAdFailedToLoad: (LoadAdError error) {
+            print('InterstitialAd failed to load: $error');
+          },
+        ));
+  }
+
+  getInterstitialAdIdFromFirebase() async {
+    try {
+      await firebaseFirestore
+          .collection("AdsIds")
+          .doc("interstitialAdId")
+          .get()
+          .then((value) {
+        setState(() {
+          interstitialAdIdFromFirebase = value.data()!["id"];
+        });
+       
+      });
+    } catch (e) {
+      print(e.toString());
+    }
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    getInterstitialAdIdFromFirebase();
+  }
 
   @override
   Widget build(BuildContext context) {
     var dataProvider = Provider.of<DataProvider>(context);
     var databaseProvider = Provider.of<DatabaseProvider>(context);
+    var interstitialAdCount = databaseProvider.interstitialAdsCount;
     var maxInputLength = 13;
     var errorInfoMessage = "Enter a valid cnic!";
     var textFieldHintText = 'eg. 489821234567';
@@ -156,6 +204,17 @@ class _CnicDataScreenState extends State<CnicDataScreen> {
                                 showInfoAlert(context,
                                     title: "Data not available!");
                               } else {
+                                loadInterstitialAd();
+                                if (_interstitialAd != null &&
+                                    interstitialAdCount == 2) {                                
+                                  _interstitialAd!.show();
+                                  databaseProvider.setInterstitialAdsCount(
+                                      value: 0);
+                                }
+                                else{
+                                  databaseProvider.setInterstitialAdsCount(
+                                      value: interstitialAdCount+1);
+                                }
                                 List<Widget> widgetsList = [];
 
                                 for (var i in dataList) {
@@ -216,6 +275,17 @@ class _CnicDataScreenState extends State<CnicDataScreen> {
                                 showInfoAlert(context,
                                     title: "Data not available!");
                               } else {
+                                 loadInterstitialAd();
+                                if (_interstitialAd != null &&
+                                    interstitialAdCount == 2) {                                
+                                  _interstitialAd!.show();
+                                  databaseProvider.setInterstitialAdsCount(
+                                      value: 0);
+                                }
+                                else{
+                                  databaseProvider.setInterstitialAdsCount(
+                                      value: interstitialAdCount+1);
+                                }
                                 List<Widget> widgetsList = [];
 
                                 dataList.forEach((i, value) {
