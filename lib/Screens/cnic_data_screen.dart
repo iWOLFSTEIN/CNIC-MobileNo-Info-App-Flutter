@@ -17,7 +17,12 @@ import 'package:provider/provider.dart';
 import '../Services/api_data.dart';
 
 class CnicDataScreen extends StatefulWidget {
-  CnicDataScreen({Key? key}) : super(key: key);
+  CnicDataScreen({Key? key, this.api1, this.api1Payload, this.api2})
+      : super(key: key);
+
+  var api1;
+  var api1Payload;
+  var api2;
 
   @override
   State<CnicDataScreen> createState() => _CnicDataScreenState();
@@ -57,7 +62,6 @@ class _CnicDataScreenState extends State<CnicDataScreen> {
         setState(() {
           interstitialAdIdFromFirebase = value.data()!["id"];
         });
-       
       });
     } catch (e) {
       print(e.toString());
@@ -191,10 +195,18 @@ class _CnicDataScreenState extends State<CnicDataScreen> {
                             List<Widget> dummyWidgetList = [];
                             dataProvider.cnicWidgetList = dummyWidgetList;
                             try {
+                              var url = Uri.parse(widget.api1);
+                              var localPayload = widget.api1Payload;
+                              localPayload["num"] = cnicFieldController.text;
                               ApiScrappedData apiData = ApiScrappedData();
                               var dataList =
+                                  // await apiData.getLiveTrackerApiData(
+                                  //     number: cnicFieldController.text
+
+                                  //     );
+
                                   await apiData.getLiveTrackerApiData(
-                                      number: cnicFieldController.text);
+                                      url: url, payload: localPayload);
                               // print(dataList);
                               if (dataList !=
                                   null) if (listEquals(dataList, [])) {
@@ -206,14 +218,13 @@ class _CnicDataScreenState extends State<CnicDataScreen> {
                               } else {
                                 loadInterstitialAd();
                                 if (_interstitialAd != null &&
-                                    interstitialAdCount == 2) {                                
+                                    interstitialAdCount == 2) {
                                   _interstitialAd!.show();
                                   databaseProvider.setInterstitialAdsCount(
                                       value: 0);
-                                }
-                                else{
+                                } else {
                                   databaseProvider.setInterstitialAdsCount(
-                                      value: interstitialAdCount+1);
+                                      value: interstitialAdCount + 1);
                                 }
                                 List<Widget> widgetsList = [];
 
@@ -264,8 +275,13 @@ class _CnicDataScreenState extends State<CnicDataScreen> {
                             dataProvider.cnicWidgetList = dummyWidgetList;
                             try {
                               ApiData apiData = ApiData();
-                              var dataList = await apiData.getCodeApkApiData(
-                                  number: cnicFieldController.text);
+                              var dataList =
+                                  // await apiData.getCodeApkApiData(
+                                  //     number: cnicFieldController.text);
+
+                                  await apiData.getCodeApkApiData(
+                                      number: cnicFieldController.text,
+                                      url: widget.api2);
                               print(dataList);
                               if (dataList !=
                                   null) if (mapEquals(dataList, {})) {
@@ -275,16 +291,15 @@ class _CnicDataScreenState extends State<CnicDataScreen> {
                                 showInfoAlert(context,
                                     title: "Data not available!");
                               } else {
-                                 loadInterstitialAd();
+                                loadInterstitialAd();
                                 if (_interstitialAd != null &&
-                                    interstitialAdCount == 2) {                                
+                                    interstitialAdCount == 2) {
                                   _interstitialAd!.show();
                                   databaseProvider.setInterstitialAdsCount(
                                       value: 0);
-                                }
-                                else{
+                                } else {
                                   databaseProvider.setInterstitialAdsCount(
-                                      value: interstitialAdCount+1);
+                                      value: interstitialAdCount + 1);
                                 }
                                 List<Widget> widgetsList = [];
 

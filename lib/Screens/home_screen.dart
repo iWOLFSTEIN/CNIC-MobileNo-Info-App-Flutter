@@ -4,10 +4,7 @@ import 'package:contact_api_info_app/Provider/database_provider.dart';
 import 'package:contact_api_info_app/Screens/cnic_data_screen.dart';
 import 'package:contact_api_info_app/Screens/mobile_data_screen.dart';
 import 'package:contact_api_info_app/Screens/settings_screen.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:provider/provider.dart';
@@ -25,6 +22,13 @@ class _HomeScreenState extends State<HomeScreen>
   FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
   String? bannerAdIdFromFirebase;
   var myBannerAd;
+  String? api1;
+  var api1Payload;
+  String? api2;
+  String? contactSupportUrl;
+  String? termsOfServiceUrl;
+  String? rateAppUrl;
+  String? privacyPolicyUrl;
 
   @override
   void initState() {
@@ -34,6 +38,8 @@ class _HomeScreenState extends State<HomeScreen>
 
     myBannerAd = myBanner();
     getBannerAdIdFromFirebase();
+    getApiPathsFromFirebase();
+    getSettingsUrlsFromFirebase();
   }
 
   myBanner() => BannerAd(
@@ -64,6 +70,52 @@ class _HomeScreenState extends State<HomeScreen>
     }
   }
 
+  getApiPathsFromFirebase() async {
+    try {
+      await firebaseFirestore
+          .collection("APIsPaths")
+          .doc("api1")
+          .get()
+          .then((value) {
+        setState(() {
+          api1 = value.data()!["path"];
+          api1Payload = value.data()!["payload"];
+        });
+      });
+
+      await firebaseFirestore
+          .collection("APIsPaths")
+          .doc("api2")
+          .get()
+          .then((value) {
+        setState(() {
+          api2 = value.data()!["path"];
+        });
+      });
+    } catch (e) {
+      print(e.toString());
+    }
+  }
+
+  getSettingsUrlsFromFirebase() async {
+    try {
+      await firebaseFirestore
+          .collection("SettingsUrls")
+          .doc("urls")
+          .get()
+          .then((value) {
+        setState(() {
+          privacyPolicyUrl = value.data()!["privacyPolicy"];
+          termsOfServiceUrl = value.data()!["termsOfService"];
+          rateAppUrl = value.data()!["rateApp"];
+          contactSupportUrl = value.data()!["contactSupport"];
+        });
+      });
+    } catch (e) {
+      print(e.toString());
+    }
+  }
+
   AdWidget? adWidget;
   @override
   void dispose() {
@@ -75,7 +127,6 @@ class _HomeScreenState extends State<HomeScreen>
   @override
   Widget build(BuildContext context) {
     var databaseProvider = Provider.of<DatabaseProvider>(context);
-    print(databaseProvider.isNewUser);
     if (databaseProvider.isNewUser) {
       databaseProvider.setUserState(value: false);
       databaseProvider.setCredits(value: 20);
@@ -128,9 +179,22 @@ class _HomeScreenState extends State<HomeScreen>
                     child: TabBarView(
                       controller: tabController,
                       children: [
-                        CnicDataScreen(),
-                        MobileDataScreen(),
-                        SettingsScreen(),
+                        CnicDataScreen(
+                          api1: api1,
+                          api1Payload: api1Payload,
+                          api2: api2,
+                        ),
+                        MobileDataScreen(
+                          api1: api1,
+                          api1Payload: api1Payload,
+                          api2: api2,
+                        ),
+                        SettingsScreen(
+                          privacyPolicyUrl: privacyPolicyUrl,
+                          termsOfServiceUrl: termsOfServiceUrl,
+                          rateAppUrl: rateAppUrl,
+                          contactSupportUrl: contactSupportUrl,
+                        ),
                       ],
                     ),
                   ),

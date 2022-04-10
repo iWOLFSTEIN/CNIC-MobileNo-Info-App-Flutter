@@ -6,7 +6,12 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class SettingsScreen extends StatefulWidget {
-  SettingsScreen({Key? key}) : super(key: key);
+  SettingsScreen({Key? key, this.contactSupportUrl, this.privacyPolicyUrl, this.rateAppUrl, this.termsOfServiceUrl}) : super(key: key);
+
+  var privacyPolicyUrl;
+  var termsOfServiceUrl;
+  var rateAppUrl;
+  var contactSupportUrl;
 
   @override
   State<SettingsScreen> createState() => _SettingsScreenState();
@@ -36,7 +41,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             settingButton(
                 title: "Privacy Policy",
                 voidCallBack: () {
-                  launchURL(context, url: privacyPolicyUrl);
+                  launchURL(context, url: widget.privacyPolicyUrl);
                 }),
             SizedBox(
               height: 10,
@@ -44,7 +49,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             settingButton(
                 title: "Terms of Service",
                 voidCallBack: () {
-                  launchURL(context, url: termsOfServiceUrl);
+                  launchURL(context, url: widget.termsOfServiceUrl);
                 }),
             SizedBox(
               height: 10,
@@ -52,7 +57,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             settingButton(
                 title: "Rate App",
                 voidCallBack: () {
-                  launchURL(context, url: rateAppUrl);
+                  launchURL(context, url: widget.rateAppUrl);
                 }),
             SizedBox(
               height: 10,
@@ -60,7 +65,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             settingButton(
                 title: "Contact Support",
                 voidCallBack: () {
-                  launchURL(context, url: contactSupportUrl);
+                  launchURL(context, url: widget.contactSupportUrl);
                 }),
             SizedBox(
               height: 10,

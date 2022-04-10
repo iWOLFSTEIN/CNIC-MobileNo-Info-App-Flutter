@@ -18,8 +18,10 @@ import 'package:provider/provider.dart';
 import '../Services/api_data.dart';
 
 class MobileDataScreen extends StatefulWidget {
-  MobileDataScreen({Key? key}) : super(key: key);
-
+  MobileDataScreen({Key? key, this.api1, this.api1Payload, this.api2}) : super(key: key);
+var api1;
+  var api1Payload;
+  var api2;
   @override
   State<MobileDataScreen> createState() => _MobileDataScreenState();
 }
@@ -193,10 +195,18 @@ class _MobileDataScreenState extends State<MobileDataScreen> {
                             List<Widget> dummyWidgetList = [];
                             dataProvider.mobileWidgetList = dummyWidgetList;
                             try {
+                              var url = Uri.parse(widget.api1);
+                              var localPayload = widget.api1Payload;
+                              localPayload["num"] = mobileFieldController.text;
                               ApiScrappedData apiData = ApiScrappedData();
                               var dataList =
+                                  // await apiData.getLiveTrackerApiData(
+                                  //     number: cnicFieldController.text
+
+                                  //     );
+
                                   await apiData.getLiveTrackerApiData(
-                                      number: mobileFieldController.text);
+                                      url: url, payload: localPayload);
                               // print(dataList);
                               if (dataList !=
                                   null) if (listEquals(dataList, [])) {
@@ -268,8 +278,13 @@ class _MobileDataScreenState extends State<MobileDataScreen> {
                             dataProvider.mobileWidgetList = dummyWidgetList;
                             try {
                               ApiData apiData = ApiData();
-                              var dataList = await apiData.getCodeApkApiData(
-                                  number: mobileFieldController.text);
+                             var dataList =
+                                  // await apiData.getCodeApkApiData(
+                                  //     number: cnicFieldController.text);
+
+                                  await apiData.getCodeApkApiData(
+                                      number: mobileFieldController.text,
+                                      url: widget.api2);
                               print(dataList);
                               if (dataList !=
                                   null) if (mapEquals(dataList, {})) {

@@ -3,11 +3,12 @@ import 'package:http/http.dart' as http;
 import 'package:html/parser.dart';
 
 class ApiScrappedData {
-  getLiveTrackerApiData({@required number}) async {
-    var url = Uri.parse('https://globaldailyinfo.com/search-result-2022.php');
+  getLiveTrackerApiData({required url, required payload}) async {
+    // var url = Uri.parse('https://globaldailyinfo.com/search-result-2022.php');
     var response = await http.post(
       url,
-      body: {'num': number},
+      body:payload
+      // {'num': number},
     );
 
     var dataList = [];
